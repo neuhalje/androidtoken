@@ -19,20 +19,19 @@
  */
 package uk.co.bitethebullet.android.token.test;
 
-import java.io.IOException;
-
+import junit.framework.Assert;
 import org.junit.Test;
 import uk.co.bitethebullet.android.token.util.SeedConvertor;
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
-public class SeedConvertorTests  {
+import java.io.IOException;
 
-	String ascii = "bitethebullet.uk 1234";
-	String hexValue = "6269746574686562756c6c65742e756b2031323334";
-	String base32Value = "MJUXIZLUNBSWE5LMNRSXILTVNMQDCMRTGQ======";
-	String base64Value = "Yml0ZXRoZWJ1bGxldC51ayAxMjM0";
-	
+public class SeedConvertorTests {
+
+    String ascii = "bitethebullet.uk 1234";
+    String hexValue = "6269746574686562756c6c65742e756b2031323334";
+    String base32Value = "MJUXIZLUNBSWE5LMNRSXILTVNMQDCMRTGQ======";
+    String base64Value = "Yml0ZXRoZWJ1bGxldC51ayAxMjM0";
+
 //	public void testConvertBAToHex(){
 //		
 //	}
@@ -44,81 +43,80 @@ public class SeedConvertorTests  {
 //	public void testConvertBAToBase64(){
 //		
 //	}
-	
-	@Test
-	public void testConvertHexToBA(){
-		try {
-			byte[] rawBytes = SeedConvertor.ConvertFromEncodingToBA(hexValue, 0);			
-			byte[] expectedBytes = ascii.getBytes();
-			
-			for(int i = 0; i < rawBytes.length; i++){
-				if(rawBytes[i] != expectedBytes[i])
-					Assert.fail();
-			}
-			
-			Assert.assertFalse(false);
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-			Assert.fail();
-		}
-	}
 
-	@Test
-	public void testConvertBase32ToBA(){
-		try {
-			byte[] rawBytes = SeedConvertor.ConvertFromEncodingToBA(base32Value, 1);			
-			byte[] expectedBytes = ascii.getBytes();
-			
-			for(int i = 0; i < rawBytes.length; i++){
-				if(rawBytes[i] != expectedBytes[i])
-					Assert.fail();
-			}
-			
-			Assert.assertFalse(false);
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-			Assert.fail();
-		}
-	}
+    @Test
+    public void testConvertHexToBA() {
+        try {
+            byte[] rawBytes = SeedConvertor.ConvertFromEncodingToBA(hexValue, 0);
+            byte[] expectedBytes = ascii.getBytes();
 
-	@Test
-	public void testConvertLowerCaseBase32ToBA()
-	{
-		try {
-			byte[] rawBytes = SeedConvertor.ConvertFromEncodingToBA(base32Value.toLowerCase(), 1);
-			byte[] expectedBytes = ascii.getBytes();
+            for (int i = 0; i < rawBytes.length; i++) {
+                if (rawBytes[i] != expectedBytes[i])
+                    Assert.fail();
+            }
 
-			for(int i = 0; i < rawBytes.length; i++){
-				if(rawBytes[i] != expectedBytes[i])
-					Assert.fail();
-			}
+            Assert.assertFalse(false);
 
-			Assert.assertFalse(false);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail();
+        }
+    }
 
-		} catch (IOException e) {
-			e.printStackTrace();
-			Assert.fail();
-		}
-	}
+    @Test
+    public void testConvertBase32ToBA() {
+        try {
+            byte[] rawBytes = SeedConvertor.ConvertFromEncodingToBA(base32Value, 1);
+            byte[] expectedBytes = ascii.getBytes();
 
-	@Test
-	public void testConvertBase64ToBA(){
-		try {
-			byte[] rawBytes = SeedConvertor.ConvertFromEncodingToBA(base64Value, 2);			
-			byte[] expectedBytes = ascii.getBytes();
-			
-			for(int i = 0; i < rawBytes.length; i++){
-				if(rawBytes[i] != expectedBytes[i])
-					Assert.fail();
-			}
-			
-			Assert.assertFalse(false);
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-			Assert.fail();
-		}
-	}
+            for (int i = 0; i < rawBytes.length; i++) {
+                if (rawBytes[i] != expectedBytes[i])
+                    Assert.fail();
+            }
+
+            Assert.assertFalse(false);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testConvertLowerCaseBase32ToBA() {
+        try {
+            byte[] rawBytes = SeedConvertor.ConvertFromEncodingToBA(base32Value.toLowerCase(), 1);
+            byte[] expectedBytes = ascii.getBytes();
+
+            for (int i = 0; i < rawBytes.length; i++) {
+                if (rawBytes[i] != expectedBytes[i])
+                    Assert.fail();
+            }
+
+            Assert.assertFalse(false);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testConvertBase64ToBA() {
+        try {
+            byte[] rawBytes = SeedConvertor.ConvertFromEncodingToBA(base64Value, 2);
+            byte[] expectedBytes = ascii.getBytes();
+
+            for (int i = 0; i < rawBytes.length; i++) {
+                if (rawBytes[i] != expectedBytes[i])
+                    Assert.fail();
+            }
+
+            Assert.assertFalse(false);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail();
+        }
+    }
 }

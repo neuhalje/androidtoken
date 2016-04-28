@@ -19,6 +19,8 @@
  */
 package uk.co.bitethebullet.android.token;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
@@ -26,223 +28,220 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-
 
 /**
  * Hotp Token
- * 
+ * <p>
  * This is an event based OATH token, for further details
  * see the RFC http://tools.ietf.org/html/rfc4226
- *
  */
 public class HotpToken implements IToken {
 
-	private String mName;
-	private String mSerial;
-	private String mSeed;
-	private long mEventCount;
-	private int mOtpLength;
-	private long id;
-		
-	
-	private static final int[] DIGITS_POWER
-    // 0 1  2   3    4     5      6       7        8
-    = {1,10,100,1000,10000,100000,1000000,10000000,100000000};
-
-	
-	public HotpToken(String name, String serial, String seed, long eventCount, int otpLength){
-		mName = name;
-		mSerial = serial;
-		mSeed = seed;
-		mEventCount = eventCount;
-		mOtpLength = otpLength;
-	}
-	
-	public int getTimeStep(){
-		return 0;
-	}
-	
-	public long getId(){
-		return this.id;
-	}
-	
-	public void setId(long id){
-		this.id = id;
-	}
-	
-	public int getTokenType(){
-		return TokenDbAdapter.TOKEN_TYPE_EVENT;
-	}
-	
-	public String getName() {
-		return mName;
-	}
+    private String mName;
+    private String mSerial;
+    private String mSeed;
+    private long mEventCount;
+    private int mOtpLength;
+    private long id;
 
 
-	public void setName(String name) {
-		this.mName = name;
-	}
+    private static final int[] DIGITS_POWER
+            // 0 1  2   3    4     5      6       7        8
+            = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000};
 
 
-	public String getSerialNumber() {
-		return mSerial;
-	}
+    public HotpToken(String name, String serial, String seed, long eventCount, int otpLength) {
+        mName = name;
+        mSerial = serial;
+        mSeed = seed;
+        mEventCount = eventCount;
+        mOtpLength = otpLength;
+    }
+
+    public int getTimeStep() {
+        return 0;
+    }
+
+    public long getId() {
+        return this.id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public int getTokenType() {
+        return TokenDbAdapter.TOKEN_TYPE_EVENT;
+    }
+
+    public String getName() {
+        return mName;
+    }
 
 
-	public void setSerialNumber(String serial) {
-		this.mSerial = serial;
-	}
+    public void setName(String name) {
+        this.mName = name;
+    }
 
 
-	public String getSeed() {
-		return mSeed;
-	}
+    public String getSerialNumber() {
+        return mSerial;
+    }
 
 
-	protected void setSeed(String seed) {
-		this.mSeed = seed;
-	}
+    public void setSerialNumber(String serial) {
+        this.mSerial = serial;
+    }
 
 
-	protected long getEventCount() {
-		return mEventCount;
-	}
+    public String getSeed() {
+        return mSeed;
+    }
 
 
-	protected void setEventCount(long eventCount) {
-		this.mEventCount = eventCount;
-	}
+    protected void setSeed(String seed) {
+        this.mSeed = seed;
+    }
 
 
-	public int getOtpLength() {
-		return mOtpLength;
-	}
+    protected long getEventCount() {
+        return mEventCount;
+    }
 
 
-	public void setOtpLength(int otpLength) {
-		this.mOtpLength = otpLength;
-	}
+    protected void setEventCount(long eventCount) {
+        this.mEventCount = eventCount;
+    }
 
 
-	public String generateOtp() {
-		
-		byte[] counter = new byte[8];
-		long movingFactor = mEventCount;
-		
-		for(int i = counter.length - 1; i >= 0; i--){
-			counter[i] = (byte)(movingFactor & 0xff);
-			movingFactor >>= 8;
-		}
-		
-		byte[] hash = hmacSha(parseHex(mSeed), counter);
-		int offset = hash[hash.length - 1] & 0xf;
-		
-		int otpBinary = ((hash[offset] & 0x7f) << 24)
-						|((hash[offset + 1] & 0xff) << 16)
-						|((hash[offset + 2] & 0xff) << 8)
-						|(hash[offset + 3] & 0xff);
-		
-		int otp = otpBinary % DIGITS_POWER[mOtpLength];
-		String result = Integer.toString(otp);
-		
-		
-		while(result.length() < mOtpLength){
-			result = "0" + result;
-		}
-		
-		return result;		
-	}
-
-	public static byte[] parseHex(String hexInputString){
-		
-		byte[] bts = new byte[hexInputString.length() / 2];
-		
-		for (int i = 0; i < bts.length; i++) {
-			bts[i] = (byte) Integer.parseInt(hexInputString.substring(2*i, 2*i+2), 16);
-		}
-		
-		return bts;
-	}
-
-	private byte[] hmacSha(byte[] seed, byte[] counter) {
-		
-		try{
-			Mac hmacSha1;
-			
-			try{
-				hmacSha1 = Mac.getInstance("HmacSHA1");
-			}catch(NoSuchAlgorithmException ex){
-				hmacSha1 = Mac.getInstance("HMAC-SHA-1");
-			}
-			
-			SecretKeySpec macKey = new SecretKeySpec(seed, "RAW");
-			hmacSha1.init(macKey);
-			
-			return hmacSha1.doFinal(counter);
-			
-		}catch(GeneralSecurityException ex){
-			throw new UndeclaredThrowableException(ex);
-		}
-	}
-	
-	/**
-	 * Generates a new seed value for a token
-	 * the returned string will contain a randomly generated
-	 * hex value
-	 * @param length - defines the length of the new seed this should be either 128 or 160
-	 * @return
-	 */
-	public static String generateNewSeed(int length){
-		
-		String salt = "";
-		long ticks = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTimeInMillis();		
-		salt = salt + ticks;
-		
-		byte[] byteToHash = salt.getBytes();
-		
-		MessageDigest md;
-		
-		try{		
-			if(length == 128){
-				//128 long
-				md = MessageDigest.getInstance("MD5");			
-			}else{
-				//160 long
-				md = MessageDigest.getInstance("SHA1");
-			}
-			
-			md.reset();
-			md.update(byteToHash);
-			
-			byte[] digest = md.digest();
-			
-			//convert to hex string			
-			
-			return byteArrayToHexString(digest);
-			
-		}catch(NoSuchAlgorithmException ex){
-			return null;		
-		}
-	}
+    public int getOtpLength() {
+        return mOtpLength;
+    }
 
 
-	public static String byteArrayToHexString(byte[] digest) {
-		
-		StringBuffer buffer = new StringBuffer();
-		
-		for(int i =0; i < digest.length; i++){
-			String hex = Integer.toHexString(0xff & digest[i]);
-			
-			if(hex.length() == 1)
-				buffer.append("0");
-			
-			buffer.append(hex);
+    public void setOtpLength(int otpLength) {
+        this.mOtpLength = otpLength;
+    }
 
-		}
-		
-		return buffer.toString();
-	}
+
+    public String generateOtp() {
+
+        byte[] counter = new byte[8];
+        long movingFactor = mEventCount;
+
+        for (int i = counter.length - 1; i >= 0; i--) {
+            counter[i] = (byte) (movingFactor & 0xff);
+            movingFactor >>= 8;
+        }
+
+        byte[] hash = hmacSha(parseHex(mSeed), counter);
+        int offset = hash[hash.length - 1] & 0xf;
+
+        int otpBinary = ((hash[offset] & 0x7f) << 24)
+                | ((hash[offset + 1] & 0xff) << 16)
+                | ((hash[offset + 2] & 0xff) << 8)
+                | (hash[offset + 3] & 0xff);
+
+        int otp = otpBinary % DIGITS_POWER[mOtpLength];
+        String result = Integer.toString(otp);
+
+
+        while (result.length() < mOtpLength) {
+            result = "0" + result;
+        }
+
+        return result;
+    }
+
+    public static byte[] parseHex(String hexInputString) {
+
+        byte[] bts = new byte[hexInputString.length() / 2];
+
+        for (int i = 0; i < bts.length; i++) {
+            bts[i] = (byte) Integer.parseInt(hexInputString.substring(2 * i, 2 * i + 2), 16);
+        }
+
+        return bts;
+    }
+
+    private byte[] hmacSha(byte[] seed, byte[] counter) {
+
+        try {
+            Mac hmacSha1;
+
+            try {
+                hmacSha1 = Mac.getInstance("HmacSHA1");
+            } catch (NoSuchAlgorithmException ex) {
+                hmacSha1 = Mac.getInstance("HMAC-SHA-1");
+            }
+
+            SecretKeySpec macKey = new SecretKeySpec(seed, "RAW");
+            hmacSha1.init(macKey);
+
+            return hmacSha1.doFinal(counter);
+
+        } catch (GeneralSecurityException ex) {
+            throw new UndeclaredThrowableException(ex);
+        }
+    }
+
+    /**
+     * Generates a new seed value for a token
+     * the returned string will contain a randomly generated
+     * hex value
+     *
+     * @param length - defines the length of the new seed this should be either 128 or 160
+     * @return
+     */
+    public static String generateNewSeed(int length) {
+
+        String salt = "";
+        long ticks = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTimeInMillis();
+        salt = salt + ticks;
+
+        byte[] byteToHash = salt.getBytes();
+
+        MessageDigest md;
+
+        try {
+            if (length == 128) {
+                //128 long
+                md = MessageDigest.getInstance("MD5");
+            } else {
+                //160 long
+                md = MessageDigest.getInstance("SHA1");
+            }
+
+            md.reset();
+            md.update(byteToHash);
+
+            byte[] digest = md.digest();
+
+            //convert to hex string
+
+            return byteArrayToHexString(digest);
+
+        } catch (NoSuchAlgorithmException ex) {
+            return null;
+        }
+    }
+
+
+    public static String byteArrayToHexString(byte[] digest) {
+
+        StringBuffer buffer = new StringBuffer();
+
+        for (int i = 0; i < digest.length; i++) {
+            String hex = Integer.toHexString(0xff & digest[i]);
+
+            if (hex.length() == 1)
+                buffer.append("0");
+
+            buffer.append(hex);
+
+        }
+
+        return buffer.toString();
+    }
 
 }

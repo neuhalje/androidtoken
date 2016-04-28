@@ -25,44 +25,43 @@ import java.util.TimeZone;
 
 /**
  * TOTP Token
- * 
+ * <p>
  * Generates an OTP based on the time, for more information see
  * http://tools.ietf.org/html/draft-mraihi-totp-timebased-00
- * 
  */
 public class TotpToken extends HotpToken {
 
-	private int mTimeStep;
-	
-	public TotpToken(String name, String serial, String seed, int timeStep, int otpLength){
-		super(name, serial, seed, 0, otpLength);
-		
-		mTimeStep = timeStep;
-	}
+    private int mTimeStep;
 
-	@Override
-	public int getTimeStep(){
-		return mTimeStep;
-	}
-	
-	@Override
-	public int getTokenType(){
-		return TokenDbAdapter.TOKEN_TYPE_TIME;
-	}
-	
-	@Override
-	public String generateOtp() {
-		
-		//calculate the moving counter using the time
-		return generateOtp(Calendar.getInstance(TimeZone.getTimeZone("GMT")));	
-	}
-	
-	public String generateOtp(Calendar currentTime){
-		long time =currentTime.getTimeInMillis()/1000;		
-		super.setEventCount(time/mTimeStep);
-		
-		return super.generateOtp();
-	}
-	
-	
+    public TotpToken(String name, String serial, String seed, int timeStep, int otpLength) {
+        super(name, serial, seed, 0, otpLength);
+
+        mTimeStep = timeStep;
+    }
+
+    @Override
+    public int getTimeStep() {
+        return mTimeStep;
+    }
+
+    @Override
+    public int getTokenType() {
+        return TokenDbAdapter.TOKEN_TYPE_TIME;
+    }
+
+    @Override
+    public String generateOtp() {
+
+        //calculate the moving counter using the time
+        return generateOtp(Calendar.getInstance(TimeZone.getTimeZone("GMT")));
+    }
+
+    public String generateOtp(Calendar currentTime) {
+        long time = currentTime.getTimeInMillis() / 1000;
+        super.setEventCount(time / mTimeStep);
+
+        return super.generateOtp();
+    }
+
+
 }
