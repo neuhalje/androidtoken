@@ -136,7 +136,7 @@ public class HotpToken implements IToken {
 			movingFactor >>= 8;
 		}
 		
-		byte[] hash = hmacSha(stringToHex(mSeed), counter);
+		byte[] hash = hmacSha(parseHex(mSeed), counter);
 		int offset = hash[hash.length - 1] & 0xf;
 		
 		int otpBinary = ((hash[offset] & 0x7f) << 24)
@@ -155,7 +155,7 @@ public class HotpToken implements IToken {
 		return result;		
 	}
 
-	public static byte[] stringToHex(String hexInputString){
+	public static byte[] parseHex(String hexInputString){
 		
 		byte[] bts = new byte[hexInputString.length() / 2];
 		

@@ -32,7 +32,7 @@ public class SeedConvertor {
 		
 		if(currentFormat == 0){
 			//hex
-			return HotpToken.stringToHex(input);
+			return HotpToken.parseHex(input);
 		}else if(currentFormat == 1){
 			//base 32
 			Base32 base32 = new Base32();
