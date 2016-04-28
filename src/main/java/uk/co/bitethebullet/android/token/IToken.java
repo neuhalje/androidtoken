@@ -36,4 +36,7 @@ public interface IToken {
 	public int getTimeStep();
 
 	public String getSeed();
+
+	public int getOtpLength();
+
 }

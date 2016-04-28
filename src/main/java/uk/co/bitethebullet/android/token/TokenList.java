@@ -28,7 +28,9 @@ import java.util.TimerTask;
 
 import android.annotation.TargetApi;
 import android.content.*;
+import android.content.res.Resources;
 import android.os.Build;
+import android.os.Message;
 import android.view.*;
 import uk.co.bitethebullet.android.token.util.SeedConvertor;
 import uk.co.bitethebullet.android.token.zxing.IntentIntegrator;
@@ -237,19 +239,27 @@ public class TokenList extends ListActivity {
 		Toast toast = Toast.makeText(this, getString(R.string.copy_token_seed_to_clipboard_ok, token.getName(),token.getSeed() ),Toast.LENGTH_SHORT);
 		toast.show();
 	}
-	private void showTokenSeedInDialog(IToken token) {
-		//prompt the user to see if they want to delete the current
-		//selected token
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
+    private void showTokenSeedInDialog(IToken token) {
+        Dialog d = new Dialog(this);
+        d.setContentView(R.layout.token_show);
+        d.setTitle(token.getName());
 
-		builder.setTitle(R.string.app_name)
-				.setMessage(getString(R.string.dialog_show_seed_format, token.getName(), token.getSeed()))
-				.setIcon(android.R.drawable.ic_dialog_info)
-				.setPositiveButton(R.string.dialogPositive, null);
+        ((TextView) d.findViewById(R.id.tokenTypeValue)).setText(getResources().getStringArray(R.array.tokenType)[token.getTokenType()]);
 
-		builder.show();
-	}
+        ((TextView) d.findViewById(R.id.tokenOtpLengthValue)).setText("" + token.getOtpLength());
+
+        final String labelTokenSeedType = getString(R.string.label_token_seed_type,getResources().getStringArray(R.array.tokenSeedFormatType)[TokenSeedFormat.HEX.ordinal()]);
+        ((TextView) d.findViewById(R.id.tokenSeedFormat)).setText(labelTokenSeedType);
+        ((TextView) d.findViewById(R.id.tokenSeedValue)).setText(token.getSeed());
+
+        ((TextView) d.findViewById(R.id.tokenSerialValue)).setText(token.getSerialNumber());
+        ((TextView) d.findViewById(R.id.tokenTimeStepValue)).setText(String.format("%ds", token.getTimeStep()));
+
+        d.setCancelable(true);
+        d.setCanceledOnTouchOutside(true);
+        d.show();
+    }
 
 
 

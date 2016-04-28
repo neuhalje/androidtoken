@@ -61,4 +61,5 @@
     <string name="delete_token">Delete this token</string>
     <string name="show_seed_as_dialog">Show token seed</string>
     <string name="dialog_show_seed_format">Seed for token "%1$s" (hex):\n\n%2$s</string>
+    <string name="label_token_seed_type">Token seed formatted as %s</string>
 </resources>
